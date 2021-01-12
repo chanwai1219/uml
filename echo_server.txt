@@ -1,0 +1,117 @@
+@startuml
+
+class AcceptPipelineFactory
+class DefaultAcceptPipelineFactory
+AcceptPipelineFactory <|-- DefaultAcceptPipelineFactory
+
+class ServerConnection {
+    - pipeline_    
+}
+ServerConnection::pipeline_ --> Pipeline
+
+class PipelineFactory
+class EchoPipelineFactory
+PipelineFactory <|-- EchoPipelineFactory
+
+class RemoteAcceptor {
+    - callback_
+    - queue_
+}
+RemoteAcceptor::callback_ --> ServerAcceptor
+
+class InboundHandler
+
+class PipelineContext
+class ContextImplBase
+class ContextImpl
+PipelineContext <|-- ContextImplBase
+ContextImplBase <|-- ContextImpl 
+
+class PipelineBase {
+    - ctxs_
+    - inCtxs_
+    - outCtxs_
+}
+class Pipeline
+PipelineBase <|-- Pipeline
+PipelineBase::ctxs_ --> ContextImpl
+
+class Acceptor
+class ServerAcceptor {
+    - acceptPipelineFactory_
+    - acceptPipeline_
+}
+AcceptCallback <|-- Acceptor
+Acceptor <|-- ServerAcceptor
+InboundHandler <|-- ServerAcceptor
+ServerAcceptor::acceptPipelineFactory_ --> DefaultAcceptPipelineFactory
+ServerAcceptor::acceptPipeline_ --> Pipeline
+
+class AcceptorFactory
+class ServerAcceptorFactory {
+    - acceptPipelineFactory_
+    - childPipelineFactory_
+}
+AcceptorFactory <|-- ServerAcceptorFactory
+ServerAcceptorFactory::acceptPipelineFactory_ --> DefaultAcceptPipelineFactory 
+ServerAcceptorFactory::childPipelineFactory_ --> EchoPipelineFactory 
+
+class IOExecutor
+class ThreadPoolExecutor {
+    observers_
+}
+class IOThreadPoolExecutor
+ThreadPoolExecutor <|-- IOThreadPoolExecutor
+IOExecutor <|-- IOThreadPoolExecutor
+
+ThreadPoolExecutor::observers_ --> ServerWorkerPool
+
+class EventHandler
+class ServerEventHandler {
+    - parent_
+}
+EventHandler <|-- ServerEventHandler
+ServerEventHandler::AsyncServerSocket --> AsyncServerSocket
+
+class AsyncSocketBase
+class AsyncServerSocket {
+    - callbacks_
+    - sockets_
+}
+AsyncSocketBase <|-- AsyncServerSocket
+AsyncServerSocket::callbacks_ --> ServerAcceptor
+AsyncServerSocket::sockets_ --> ServerEventHandler
+
+class ServerSocketFactory
+class AsyncServerSocketFactory
+ServerSocketFactory <|-- AsyncServerSocketFactory
+
+class Observer
+class ServerWorkerPool {
+    - acceptorFactory_
+    - socketFactory_
+    - workers_
+    - sockets_
+}
+Observer <|-- ServerWorkerPool
+ServerWorkerPool::acceptorFactory_ --> ServerAcceptorFactory
+ServerWorkerPool::socketFactory_ --> AsyncServerSocketFactory
+ServerWorkerPool::workers_ --> ServerAcceptor
+ServerWorkerPool::sockets_ --> AsyncServerSocket
+
+class ServerBootstrap {
+    - acceptor_group_ 
+    - io_group_
+    - workerFactory_
+    - sockets_
+    - acceptorFactory_
+    - childPipelineFactory_ 
+    - acceptPipelineFactory_
+    - socketFactory_
+}
+ServerBootstrap::socketFactory_ --> AsyncServerSocketFactory
+ServerBootstrap::childPipelineFactory_ --> EchoPipelineFactory
+ServerBootstrap::acceptPipelineFactory_ --> DefaultAcceptPipelineFactory
+ServerBootstrap::acceptor_group_ --> IOThreadPoolExecutor
+ServerBootstrap::io_group_ --> IOThreadPoolExecutor
+@enduml

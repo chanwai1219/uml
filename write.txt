@@ -1,0 +1,8 @@
+@startuml
+
+:Pipeline::write;
+repeat :ContextImpl::write;
+:HandlerAdapter::write;
+:ContextImpl::fireWrite;
+repeat while (nextOut_ != nullptr) is (yes)
+@enduml

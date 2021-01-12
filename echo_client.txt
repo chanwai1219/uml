@@ -1,0 +1,86 @@
+@startuml
+
+class PipelineContext
+class ContextImplBase {
+    - pipelineWeak_
+    - pipelineRaw_
+    - handler_
+}
+class ContextImpl
+PipelineContext <|-- ContextImplBase
+ContextImplBase <|-- ContextImpl 
+ContextImplBase::pipelineRaw_ --> Pipeline
+ContextImplBase::handler_ --> EchoHandler
+InboundLink <|-- ContextImpl 
+OutboundLink <|-- ContextImpl 
+
+class InboundLink
+class OutboundLink
+class PipelineBase {
+    - ctxs_
+    - inCtxs_
+    - outCtxs_
+}
+class Pipeline {
+    - front_
+    - back_
+}
+PipelineBase <|-- Pipeline
+PipelineBase::ctxs_ --> ContextImpl
+Pipeline::front_ --> InboundLink
+Pipeline::back_ --> OutboundLink
+
+class PipelineFactory
+class EchoPipelineFactory
+PipelineFactory <|-- EchoPipelineFactory
+
+
+class HandlerBase {
+    - ctx_
+}
+class InboundHandler
+class OutboundHandler
+class Handler
+class HandlerAdapter
+class EchoHandler
+HandlerBase <|-- Handler
+HandlerBase <|-- InboundHandler
+HandlerBase <|-- OutboundHandler
+Handler <|-- HandlerAdapter
+HandlerAdapter <|-- EchoHandler
+HandlerBase::ctx_ --> ContextImpl
+
+
+class EventHandler
+class IoHandler {
+    - socket_
+}
+EventHandler <|-- IoHandler
+socket_::socket_ --> AsyncSocket
+
+class AsyncSocketBase
+class AsyncTransport
+class AsyncSocket {
+    - ioHandler_
+    - immediateReadHandler_
+    - connectCallback_
+}
+AsyncSocketBase <|-- AsyncSocket
+AsyncSocket::ioHandler_ --> IoHandler
+AsyncSocket::connectCallback_ --> ConnectCallback
+
+class Promise
+class ConnectCallback {
+    - promise_
+    - bootstrap
+    - socket
+}
+ConnectCallback::promise_ --> Promise
+
+class BaseClientBootstrap
+class ClientBootstrap {
+    - pipelineFactory_
+}
+BaseClientBootstrap <|-- ClientBootstrap
+ClientBootstrap::pipelineFactory_ --> EchoPipelineFactory
+@enduml

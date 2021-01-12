@@ -1,0 +1,12 @@
+@startuml
+:EventHandler::libeventCallback;
+:AsyncServerSocket::ServerEventHandler;
+:AsyncServerSocket::handlerReady;
+:AsyncServerSocket::dispatchSocket;
+:EventBaseAtomicNotificationQueue<Task, Consumer>::handlerReady;
+:AsyncServerSocket::RemoteAcceptor::Consumer::operator();
+:Acceptor::connectionAccepted;
+:Acceptor::plaintextConnectionReady;
+:ServerAcceptor::onNewConnection;
+:ServerAcceptor::read;
+@enduml

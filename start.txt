@@ -1,0 +1,17 @@
+@startuml
+:**ServerBootstrap::bind**;
+:**ServerBootstrap::group**
+create accept group and io group
+create ServerAcceptorFactory and ServerWorkerPool
+register ServerWorkerPool to io group;
+:**ServerWorkerPool::threadStarted**
+for each IO Thread, create a ServerAcceptor
+ServerAcceptor create AcceptPipeline
+Add ServerAcceptor as AcceptPipeline handler;
+:**ServerSocketFactory::newSocket**
+Create AsyncServerSocket at Acceptor Thread
+Create ServerEventHandler for this socket
+Register ServerEventHandler to event loop;
+:**ServerSocketFactory::addAcceptCB**
+For each IO Thread create a RemoteAcceptor for this AsyncServerSocket;
+@enduml
