@@ -1,0 +1,74 @@
+@startuml
+interface H2Channel
+class SingleRpcChannel {
+    - processor_
+}
+H2Channel <|-- SingleRpcChannel
+SingleRpcChannel::processor_ --> ThriftProcessor
+
+class ThriftProcessor {
+    - cpp2Processor_
+}
+
+class MyServiceAsyncProcessor {
+    - iface_
+}
+ThriftProcessor::cpp2Processor_ --> MyServiceAsyncProcessor
+MyServiceAsyncProcessor::iface_ --> MyServiceSvIf
+
+class ThriftRequestHandler {
+    - processor_
+    - channel_
+}
+ThriftRequestHandler::processor_ --> ThriftProcessor
+ThriftRequestHandler::channel_ --> SingleRpcChannel
+
+class BaseThriftServer {
+    - cpp2Pfac_
+}
+class ThriftServer {
+    - thriftProcessor_
+    - serverChannel_
+}
+BaseThriftServer <|-- ThriftServer
+
+class Cpp2Worker {
+    - requestsRegistry_
+    - server_
+}
+wangle::Acceptor <|-- Cpp2Worker
+Cpp2Worker::server_ --> ThriftServer
+
+BaseThriftServer::cpp2Pfac_ --> ThriftServerAsyncProcessorFactory
+AsyncProcessorFactory <|-- ThriftServerAsyncProcessorFactory
+
+ThriftServer::thriftProcessor_ --> ThriftProcessor
+
+class Cpp2Connection {
+    - processor_
+    - worker_
+}
+class Cpp2Channel {
+    - recvCallback_
+}
+
+class HeaderServerChannel {
+    - callback_
+}
+class HeaderServerChannel::Callback {
+
+}
+Cpp2Connection::worker_ --> Cpp2Worker
+Cpp2Connection::processor_ --> MyServiceAsyncProcessor
+
+wangle::Handler <|-- Cpp2Channel
+HeaderServerChannel::Callback <|-- Cpp2Connection
+Cpp2Channel::recvCallback_ --> HeaderServerChannel
+HeaderServerChannel::callback_ --> Cpp2Connection
+MessageChannel::RecvCallback <|-- HeaderServerChannel
+class ServerFramingHandler {
+    - channel_
+}
+FramingHandler <|-- ServerFramingHandler
+ServerFramingHandler::channel_ --> HeaderServerChannel::Callback
+@enduml

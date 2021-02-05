@@ -1,0 +1,16 @@
+@startuml
+node gnb
+node usrsctp
+node amf1
+node amf2
+node amf3
+node amf4
+node amf5
+gnb --> usrsctp
+usrsctp --> lb : socket(TCP/domain)
+lb --> amf1
+lb --> amf2
+lb --> amf3
+lb --> amf4
+lb --> amf5
+@enduml

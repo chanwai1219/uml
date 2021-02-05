@@ -1,0 +1,29 @@
+@startuml
+interface PersistentCache
+class LRUPersistentCache {
+    - cache_
+    - persistence_
+}
+
+class FilePersistentCache {
+    - cache_
+}
+FilePersistentCache::cache_ --> LRUPersistentCache
+
+PersistentCache <|-- FilePersistentCache
+
+class EvictingCacheMap
+class LRUInMemoryCache {
+    - cache_
+}
+LRUInMemoryCache::cache_ --> EvictingCacheMap
+
+class CachePersistence
+class FilePersistenceLayer
+
+CachePersistence <|-- FilePersistenceLayer
+
+PersistentCache <|-- LRUPersistentCache
+LRUPersistentCache::cache_ --> LRUInMemoryCache
+LRUPersistentCache::persistence_ --> CachePersistence
+@enduml

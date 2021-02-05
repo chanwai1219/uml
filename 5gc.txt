@@ -1,0 +1,38 @@
+@startuml
+
+control "Other NF" as nf
+participant "Acceptor Thread" as acceptor
+collections "IO Thread" as io
+collections "CPU Thread" as worker
+
+nf -> acceptor : Connect
+acceptor -> io : select io thread
+nf -> io : Service Request
+
+activate io
+io -> io : AsyncSocketHandler
+io -> io : Decode
+io -> worker : select worker by ue
+deactivate io
+
+activate worker
+worker -> worker : Pipeline1
+worker -> nf : Request
+deactivate worker
+
+nf -> io : Response
+activate io
+io -> worker : notify
+deactivate io
+
+activate worker
+worker -> worker : Pipeline2
+worker -> io
+deactivate worker
+
+activate io
+io -> io : Encode
+io -> io : AsyncSocketHandler
+
+io -> nf : Service Response
+@enduml

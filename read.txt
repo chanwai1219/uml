@@ -1,0 +1,8 @@
+@startuml
+:AsyncSocket::ioReady;
+:AsyncSocket::handleRead;
+:AsyncSocketHandler::readDataAvailable;
+repeat :ContextImpl::fireRead;
+:InboundContextImpl::read;
+repeat while (nextIn_ != nullptr) is (yes)
+@enduml
